@@ -22,8 +22,8 @@ int i=0;
 			{
 			RM_SystemSwitch(1);			
 			PIDAlgorithm();
-			BMotor_PWM(1);
-			BMotor_PWM(2);
+			BMotor_PWM(1); //right
+			BMotor_PWM(2); //left
 
 
 		if(getIsReceive()==1)

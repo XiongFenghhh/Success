@@ -71,7 +71,6 @@ if(mode==1&&me.isRun==0)
 		batholithPWMEnable();
 		MotorEngineReset();
 		batholithResetPwm();
-		brushLessEnable();
 		Encoder_Start();
 		RC_Reset();
 		setXSpeed=0;

@@ -12,7 +12,7 @@
   static double ly_p = 400;
  static double ly_i = 0;
  static double ly_d =627;
- static double lf_p=0.005;
+ static double lf_p=0.003;
  static double lf_d=0.000;
  static double lf_i=0;
 void setPitchPositionParameters(double kp,double ki,double kd){
@@ -233,6 +233,16 @@ double Position_Control_203(double current_position_203,double target_position_2
 {
     static double error_l[3] = {0.0,0.0,0.0};
     static double output = 0;
+		if(RC_Ctl.velocity.BMPWM>200)
+		{
+			ly_p=1500;
+			ly_d=800;
+		}
+		else
+		{
+			ly_p=500;
+			ly_d=627;
+		}
 		if(isMoving==1){
 //			
 //			l_p=30;

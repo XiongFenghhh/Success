@@ -19,7 +19,7 @@ void RC_Reset(void)
 		RC_Ctl.velocity.BMPWM=0.05*BM_PWM_MAX;
 		RC_Ctl.velocity.isBMSet=0;
 	#ifndef Gun
-		RC_Ctl.velocity.vel=1550;
+		RC_Ctl.velocity.vel=1250;
 	#endif
 	#ifdef Gun
 		RC_Ctl.velocity.steerPWM=332;
@@ -225,9 +225,9 @@ if(me.isStart==1)
 	
 if(RC_Ctl.mouse.isUpedge_r==1&&RC_Ctl.velocity.isBMSet==0&&RC_Ctl.velocity.isStepperMoving==0)
 		{
-			if(RC_Ctl.velocity.BMPWM<0.1*BM_PWM_MAX-50)
+			if(RC_Ctl.velocity.BMPWM<0.1*BM_PWM_MAX-152)
 			{
-				RC_Ctl.velocity.BMPWM=BM_PWM_MAX*0.1-50;
+				RC_Ctl.velocity.BMPWM=BM_PWM_MAX*0.1-152;
 				GPIO_ResetBits(GPIOB,GPIO_Pin_6);
 				RC_Ctl.velocity.isBMSet=1;
 			}
@@ -267,7 +267,7 @@ if(RC_Ctl.mouse.isUpedge_r==1&&RC_Ctl.velocity.isBMSet==0&&RC_Ctl.velocity.isSte
 		setXSpeed=((double)(RC_Ctl.rc.ch0-1024)/660*1200);
 		setYSpeed=((double)(RC_Ctl.rc.ch1-1024)/660*1200);
 	}
-		RC_Ctl.velocity.w=(double)(RC_Ctl.rc.ch2-1024)/660*0.5;
+		RC_Ctl.velocity.w=(double)(RC_Ctl.rc.ch2-1024)/660*0.4;
 	
 	}
 /**=====================================Key Board Part=============================**/
@@ -393,9 +393,9 @@ double getYunTaiDeltaPositionYaw(void){
 double getYunTaiDeltaPositionPitch(void){
 	
 	if(RC_Ctl.rc.s1==1){
-		if(RC_Ctl.mouse.y>80)return 1;
-		else if(RC_Ctl.mouse.y<-80)return -1;
-		else return (double)(RC_Ctl.mouse.y)/80;
+		if(RC_Ctl.mouse.y>80)return 0.5;
+		else if(RC_Ctl.mouse.y<-80)return -0.5;
+		else return (double)(RC_Ctl.mouse.y)/160;
 	}else if(RC_Ctl.rc.s1==3){
 		return (-(double)(RC_Ctl.rc.ch3-1024)/3)/150;
 	}else return 0;

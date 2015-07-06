@@ -1,7 +1,7 @@
 #include "can.h"
 #ifdef Shooter1
-static double wanted_p=4000;//ps:5500 ss:4000
-static double prewanted_p=4000;//ps:5500 ss:4000
+static double wanted_p=3500;//ps:5500 ss:4000
+static double prewanted_p=3500;//ps:5500 ss:4000
 static double wanted_y= 0;//modified by huangmin 20150628
 //static double wanted_y=4200;//ps:5000 ss:3000
 static double prewanted_y=4200;//ps:5000 ss:3000
@@ -158,8 +158,8 @@ void CAN1_RX0_IRQHandler(void)
 			 if(!(current_position_203>5200&&RC_Ctl.velocity.w<0)&&(!(current_position_203<3200&&RC_Ctl.velocity.w>0)))
 		   wanted_y  -= RC_Ctl.velocity.w; 
 			   //wanted_y+=RC_Ctl.velocity.w;
-		    if(wanted_p>4500)			 wanted_p=4500;//ss:4500 ps:6000
-				else if(wanted_p<3300) wanted_p=3300;//ss:3500 ps:5000 
+		    if(wanted_p>4200)			 wanted_p=4200;//ss:4500 ps:6000
+				else if(wanted_p<2800) wanted_p=2800;//ss:3500 ps:5000 
 			
 			Cmd_ESC((int16_t)Position_Control_201(current_position_201,wanted_p ),
 																																					0,
@@ -180,7 +180,7 @@ void CAN1_RX0_IRQHandler(void)
 			target_y=current_position_203;
 		}
 	//	printf(" %d\r\n",isAutoTarget());
-		if(isAutoTargetMode==1)
+		if(0)
 			{
 			
 				//if the target isn't close to the	center, do auto target

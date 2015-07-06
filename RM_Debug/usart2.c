@@ -54,15 +54,12 @@ void USART2_SendChar(unsigned char b)
 #define DebugCountMax  10
 uint8_t DebugBuf[DebugCountMax] ;
 uint8_t DebugCnt = 0;
-static uint16_t kp;
-static uint16_t ki;
-static uint16_t kd;
-static uint8_t moto_num;
+static int16_t visionx;
 static uint8_t isReceived=0;
 void USART2_IRQHandler(void)
 {
 	
-	uint8_t head = 0x7e;
+	uint8_t head = 0xff;
 	uint8_t head_Tmp;
 
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
@@ -75,9 +72,10 @@ void USART2_IRQHandler(void)
 			head_Tmp = DebugBuf[0] ;
 			if(head_Tmp == head)
 			{
-				kp = (uint16_t)((DebugBuf[2]<<8) + DebugBuf[1]);
-				ki = (uint16_t)((DebugBuf[4]<<8) + DebugBuf[3]);
-				kd = (uint16_t)((DebugBuf[6]<<8) + DebugBuf[5]);
+//				kp = (uint16_t)((DebugBuf[2]<<8) + DebugBuf[1]);
+//				ki = (uint16_t)((DebugBuf[4]<<8) + DebugBuf[3]);
+//				kd = (uint16_t)((DebugBuf[6]<<8) + DebugBuf[5]);
+				visionx
 				moto_num=DebugBuf[7];
 				isReceived=1;
 			}
@@ -86,17 +84,11 @@ void USART2_IRQHandler(void)
 		}
   }
 }
-void resetIsReceive(){isReceived=0;}
-uint8_t getIsReceive(){return isReceived;}
-void setMotoParameter(){
-if(moto_num==201)setPitchPositionParameters(((double)kp)/100,ki,((double)kd)/10);
-if(moto_num==203)setYawPositionParameters(((double)kp)/100,ki,((double)kd)/10);
-}
-int fputc(int ch, FILE *f)
-{
-    while (USART_GetFlagStatus(USART2,USART_FLAG_TC) == RESET);
-    USART_SendData(USART2, (uint8_t)ch);
-    return ch;
-}
+//double getVisionSpeed()
+//{
+//	return visionx/100.0;
+//}
+
+
 
 

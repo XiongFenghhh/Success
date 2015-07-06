@@ -128,6 +128,10 @@ return£º ÎÞ
 ********************************************/
 void CalcRotations(void)
 {
+	//**==============**
+	//**vision part 2015 7 6
+	//realWSpeed+=getvisionSpeed();
+	//
 	preR1=me.rotation[0];
 	//n1=-vx/(pi*D*tan(alpha))-vy/(pi*D)+vw*£¨lf-lw*tan(alpha))/(2*pi*D*tan(alpha))
 	//No3:+++//No4-++
