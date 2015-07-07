@@ -21,10 +21,6 @@ struct MotorEngine{
 	double rotation[4];
 	double rotation_fil[4];
 	
-	double Kp[4];
-	double Ki[4];
-	double Kd[4];
-
 	double errors[4];
 	double preErrors[4];
 	double preErrors2[4];

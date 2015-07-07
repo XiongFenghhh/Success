@@ -1,17 +1,10 @@
 #include "MotorEngine.h"
-#define set_feedback_sameDirection 1
-#define set_feedback_diffDirection 2
-#define set_feedback_toZero				 3
-#define set_feedback_fromZero				4
-static double xRatio;
-static double yRatio;
-static double wRatio;
 static double preR1;
 static double preR2;
 static double preR3;
 static double preR4;
 static double inte = 0;
-#define pwmMax 4800
+#define pwmMax 9600
 #define pwmMin 0
 #define pwmMiddle 5000
 #define cumulationLimit 2000
@@ -73,22 +66,6 @@ void PIDAlgorithmAll(uint8_t ch)
 */
 void MotorEngineReset(void)
 {
-	me.Kd[0]=Kd;
-	me.Ki[0]=Ki;
-	me.Kp[0]=Kp;
-	
-	me.Kd[1]=Kd;
-	me.Ki[1]=Ki;
-	me.Kp[1]=Kp;
-	
-	me.Kd[2]=Kd;
-	me.Ki[2]=Ki;
-	me.Kp[2]=Kp;
-	
-	me.Kd[3]=Kd;
-	me.Ki[3]=Ki;
-	me.Kp[3]=Kp;
-	
 	me.pwm[0]=0;
 	me.pwm[1]=0;
 	me.pwm[2]=0;
@@ -194,9 +171,9 @@ void PIDAlgorithm(void)
 		me.pwm[0]=abs(me.pwm[0]);
 		#endif
 		if(me.pwm[0]>=0)
-		TIM_SetCompare2(TIM8,(uint32_t)(me.pwm[0]*2));
+		TIM_SetCompare2(TIM8,(uint32_t)(me.pwm[0]));
 		else 
-		TIM_SetCompare2(TIM8,(uint32_t)(10000+me.pwm[0]*2));
+		TIM_SetCompare2(TIM8,(uint32_t)(10000+me.pwm[0]));
 //================================================================
 		
 		if(abs(me.rotation_fil[1])<0.5&&abs(encoder_cnt[1])<45)
@@ -212,9 +189,9 @@ void PIDAlgorithm(void)
 		me.pwm[1]=abs(me.pwm[1]);
 		#endif
 		if(me.pwm[1]>=0)
-		TIM_SetCompare3(TIM8,(uint32_t)(me.pwm[1]*2));
+		TIM_SetCompare3(TIM8,(uint32_t)(me.pwm[1]));
 		else 
-		TIM_SetCompare3(TIM8,(uint32_t)(10000+me.pwm[1]*2));
+		TIM_SetCompare3(TIM8,(uint32_t)(10000+me.pwm[1]));
 //=============================================================		
 		if(abs(me.rotation_fil[2])<0.5&&abs(encoder_cnt[2])<45)
 		{
@@ -229,9 +206,9 @@ void PIDAlgorithm(void)
 		me.pwm[2]=abs(me.pwm[2]);
 		#endif
 		if(me.pwm[2]>=0)
-		TIM_SetCompare2(TIM1,(uint32_t)(me.pwm[2]*2));
+		TIM_SetCompare2(TIM1,(uint32_t)(me.pwm[2]));
 		else 
-		TIM_SetCompare2(TIM1,(uint32_t)(10000+me.pwm[2]*2));
+		TIM_SetCompare2(TIM1,(uint32_t)(10000+me.pwm[2]));
 //===============================================================		
 		if(abs(me.rotation_fil[3])<0.5&&abs(encoder_cnt[3])<45)
 		{
@@ -247,9 +224,9 @@ void PIDAlgorithm(void)
 		me.pwm[3]=abs(me.pwm[3]);
 		#endif
 		if(me.pwm[3]>=0)
-		TIM_SetCompare1(TIM1,(uint32_t)(me.pwm[3]*2));
+		TIM_SetCompare1(TIM1,(uint32_t)(me.pwm[3]));
 		else 
-		TIM_SetCompare1(TIM1,(uint32_t)(10000+me.pwm[3]*2));
+		TIM_SetCompare1(TIM1,(uint32_t)(10000+me.pwm[3]));
 //===============================================================
 	}
 	me.isPIDAllowed=0;

@@ -43,7 +43,6 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static uint8_t itTimes=0;
-
 static uint8_t brushStart=0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -164,9 +163,10 @@ void SysTick_Handler(void)
 	 CAN_ITConfig(CAN1, CAN_IT_FMP0, DISABLE); //@modified by huangmin 2015.06.02 
 	itTimes=itTimes%8;
 	Encoder_Get();
+#ifndef Gun	
  get_mpu9150_data();		 //读取传感器数据
 Yaw += init_gz*0.005*57.29578;
-
+#endif
 if(me.isRun==1&&me.isStart==1)
 {
 	if(itTimes%2==0)
@@ -201,17 +201,17 @@ if(me.isRun==1&&me.isStart==1)
 	if(itTimes%2==1)
 	{	
 		/*we might use the first dimension of errors to implement differential controll*/
-		me.preErrors[0]=me.errors[0];
-		me.preErrors[1]=me.errors[1];
-		me.preErrors[2]=me.errors[2];
-		me.preErrors[3]=me.errors[3];
+			me.preErrors[0]=me.errors[0];
+			me.preErrors[1]=me.errors[1];
+			me.preErrors[2]=me.errors[2];
+			me.preErrors[3]=me.errors[3];
 
-		
-		me.errors[0]=me.rotation_fil[0]-encoder_cnt[0];
-		me.errors[1]=me.rotation_fil[1]+encoder_cnt[1];
-		me.errors[2]=me.rotation_fil[2]+encoder_cnt[2];
-		me.errors[3]=me.rotation_fil[3]-encoder_cnt[3];
-		me.isPIDAllowed=1;
+			
+			me.errors[0]=me.rotation_fil[0]-encoder_cnt[0];
+			me.errors[1]=me.rotation_fil[1]+encoder_cnt[1];
+			me.errors[2]=me.rotation_fil[2]+encoder_cnt[2];
+			me.errors[3]=me.rotation_fil[3]-encoder_cnt[3];
+			me.isPIDAllowed=1;
 		
 	}
 }
@@ -223,18 +223,12 @@ if(me.isRun==1&&me.isStart==1)
 	if(getBMPWM()>200)
 		{
 
-			if(isStepperMoving()==1){//&&brushStart>10){
-			#ifndef Gun
-				Stepper_Ctrl(itTimes);
-			#endif
-			#ifdef Gun
-				Stepper_Ctrl(itTimes);
-			#endif
-		}
+			
 			if(RC_Ctl.velocity.isStepperMoving!=1&&(RC_Ctl.mouse.press_r==1||RC_Ctl.rc.s2==1))
 			{
-				if(shootStopCount<400)shootStopCount++;
-			}else shootStopCount=0;
+				if(shootStopCount<160)shootStopCount++;
+			}else 
+			shootStopCount=0;
 		} 
 	
 	else 

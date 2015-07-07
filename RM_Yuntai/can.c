@@ -126,8 +126,6 @@ void CAN1_RX0_IRQHandler(void)
         {             
              //获得云台电机0x201的码盘值
            current_position_201 = (rx_message.Data[0]<<8) | rx_message.Data[1];		
-//				   pWord[0] = rx_message.Data[1];
-//					 pWord[1] = rx_message.Data[0];
         }
         if(rx_message.StdId == 0x202)
         { 
@@ -139,12 +137,7 @@ void CAN1_RX0_IRQHandler(void)
              //获得云台电机0x203的码盘值
 					//@modified by huangmin on 2015.04.25
 				  current_203 = (rx_message.Data[2]<<8) | rx_message.Data[3];
-//					pWord[2] = rx_message.Data[3];
-//					pWord[3] = rx_message.Data[2];
-					//@modified by huangmin on 2015.04.17
 					current_position_203 = (rx_message.Data[0]<<8) | rx_message.Data[1];
-//					pWord[4] = rx_message.Data[1];
-//				  pWord[5] = rx_message.Data[0];
           vscope_en = 1;
         }
        
@@ -152,20 +145,19 @@ void CAN1_RX0_IRQHandler(void)
 		//do the mannual control if not in auto mode		
       if(isAutoTargetMode==0)
 		 { 
-		    //if(abs(RC_Ctl.mouse.x)<1)
-			   // wanted_y = wanted_y ;
-			 // else
-			 if(!(current_position_203>5200&&RC_Ctl.velocity.w<0)&&(!(current_position_203<3200&&RC_Ctl.velocity.w>0)))
-		   wanted_y  -= RC_Ctl.velocity.w; 
-			   //wanted_y+=RC_Ctl.velocity.w;
-		    if(wanted_p>4200)			 wanted_p=4200;//ss:4500 ps:6000
-				else if(wanted_p<2800) wanted_p=2800;//ss:3500 ps:5000 
+		   if(!(current_position_203>5200&&RC_Ctl.velocity.w<0)&&(!(current_position_203<3200&&RC_Ctl.velocity.w>0)))
+				wanted_y  -= RC_Ctl.velocity.w; 
+			 if(wanted_p>4200)
+				 wanted_p=4200;//ss:4500 ps:6000
+				else if(wanted_p<2800) 
+					wanted_p=2800;//ss:3500 ps:5000 
 			
 			Cmd_ESC((int16_t)Position_Control_201(current_position_201,wanted_p ),
 																																					0,
-																					 (int16_t)Position_Control_203(Yaw,wanted_y,0));//仅有位置环
-																						//		(int16_t)Position_Control_203(current_position_203,4000,0 );
+															(int16_t)Position_Control_203(Yaw,wanted_y));//仅有位置环
+				#ifndef Gun																		
        realWSpeed= followControl(current_position_203);
+				#endif
 //============================================================//		
 //			Cmd_ESC((int16_t)Position_Control_201(current_position_201,wanted_p ),
 //																																					0,
@@ -194,7 +186,7 @@ void CAN1_RX0_IRQHandler(void)
 				else if(target_y<2000)    target_y=2000;
 			  Cmd_ESC((int16_t)Position_Control_201(current_position_201,target_p),\
 																																				   0,\
-																							(int16_t)Position_Control_203(current_position_203,target_y,0));
+																							(int16_t)Position_Control_203(current_position_203,target_y));
 						wanted_p=current_position_201;
 						wanted_y=current_position_203;
 				 }
@@ -207,7 +199,7 @@ else
 	   {
 				Cmd_ESC((int16_t)Position_Control_201(current_position_201,current_position_201 ),
 																																												0,
-								(int16_t)Position_Control_203(current_position_203,current_position_203,0));
+								(int16_t)Position_Control_203(current_position_203,current_position_203));
 			}
  }
 	

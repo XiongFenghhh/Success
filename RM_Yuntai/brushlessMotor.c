@@ -17,6 +17,8 @@
 输出：  void
 引脚：	
 				TIM1_CH1 ----- PA8
+	
+				TIM1_CH1 ----- PA8
 				TIM1_CH2 ----- PA9
 作者：	@hiyangdong
 版本：	V0.1
@@ -29,7 +31,8 @@ void BMotor_Init(void)
     TIM_OCInitTypeDef         oc;
     uint16_t PrescalerValue = (uint16_t) (SystemCoreClock / 200000) - 1;
 	
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE|RCC_AHB1Periph_GPIOB,ENABLE);
+	
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
 
     gpio.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6;
@@ -37,15 +40,15 @@ void BMotor_Init(void)
     gpio.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOE,&gpio);
   
-		gpio.GPIO_Pin=GPIO_Pin_10;
+		gpio.GPIO_Pin=GPIO_Pin_6;
 		gpio.GPIO_Mode= GPIO_Mode_OUT;
 		gpio.GPIO_Speed=GPIO_Speed_100MHz;
 		gpio.GPIO_PuPd=GPIO_PuPd_UP;
-		GPIO_Init(GPIOC,&gpio);
+		GPIO_Init(GPIOB,&gpio);
 	
     GPIO_PinAFConfig(GPIOE,GPIO_PinSource5, GPIO_AF_TIM9);
     GPIO_PinAFConfig(GPIOE,GPIO_PinSource6, GPIO_AF_TIM9);
-	
+	 
 		RCC_TIMCLKPresConfig(RCC_TIMPrescActivated);	
     
 	
@@ -59,7 +62,7 @@ void BMotor_Init(void)
     oc.TIM_OCMode = TIM_OCMode_PWM2;
     oc.TIM_OutputState = TIM_OutputState_Enable;
     oc.TIM_OutputNState = TIM_OutputState_Disable;
-    oc.TIM_Pulse = 200; 
+    oc.TIM_Pulse = 200;
     oc.TIM_OCPolarity = TIM_OCPolarity_Low;
     oc.TIM_OCNPolarity = TIM_OCPolarity_High;
     TIM_OC1Init(TIM9,&oc);
@@ -69,7 +72,14 @@ void BMotor_Init(void)
     TIM_OC2PreloadConfig(TIM9,TIM_OCPreload_Enable);
            
     TIM_ARRPreloadConfig(TIM9,ENABLE);
-		brushLessEnable();
+		TIM_SetCompare1(TIM9,200);
+	#ifndef Gun
+	TIM_SetCompare2(TIM9,200);
+	#endif
+	#ifdef Gun
+	TIM_SetCompare2(TIM9,332);
+	#endif
+	TIM_Cmd(TIM9,ENABLE);
 }
 /**
 *@description Enable Timer9 
@@ -78,8 +88,16 @@ void BMotor_Init(void)
 */
 void brushLessEnable(void)
 {
-	TIM_Cmd(TIM9,ENABLE);
+	TIM_SetCompare1(TIM9,200);
+	#ifndef Gun
+	TIM_SetCompare2(TIM9,200);
+	#endif
+	#ifdef Gun
+	TIM_SetCompare2(TIM9,332);
+	#endif
+	
 }
+
 /**
 *@description Disable Timer9 
 *@para	 none
@@ -88,7 +106,13 @@ void brushLessEnable(void)
 void brushLessDisable(void)
 {
 	TIM_SetCompare1(TIM9,200);
+	#ifndef Gun
 	TIM_SetCompare2(TIM9,200);
+	#endif
+	#ifdef Gun
+	TIM_SetCompare2(TIM9,332);
+	#endif
+	
 }
 
 /*****************************************************************
@@ -108,12 +132,14 @@ void BMotor_PWM(uint8_t channel)
 	pwm=getBMPWM()<=0.05*BM_PWM_MAX?\
 	0.05*BM_PWM_MAX:getBMPWM()>=0.1*BM_PWM_MAX?\
 	0.1*BM_PWM_MAX:getBMPWM();}
+#ifndef Gun	
 	else
 	{
 		pwm=getBMPWM()<=0.05*BM_PWM_MAX?\
 	0.05*BM_PWM_MAX:getBMPWM()>=0.1*BM_PWM_MAX?\
 	0.1*BM_PWM_MAX:getBMPWM()+8;
 	}
+#endif
 	if(pwm>0.05*BM_PWM_MAX)GPIO_ResetBits(GPIOC,GPIO_Pin_10);
 	else GPIO_SetBits(GPIOC,GPIO_Pin_10);
 	switch(channel)

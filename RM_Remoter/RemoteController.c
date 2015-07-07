@@ -137,16 +137,11 @@ void RC_Receive(void){
 				RC_Ctl.rc.ch2 = ((sbus_rx_buffer[2] >> 6) | (sbus_rx_buffer[3] << 2) | //!< Channel 2
 				(sbus_rx_buffer[4] << 10)) & 0x07ff;
 				RC_Ctl.rc.ch3 = ((sbus_rx_buffer[4] >> 1) | (sbus_rx_buffer[5] << 7)) & 0x07ff; //!< Channel 3
-				
-				
-	
 				preMouseY=RC_Ctl.mouse.y-(double)(RC_Ctl.rc.ch3 -1024)/3;
 				preMouseX=RC_Ctl.mouse.x;
 				RC_Ctl.mouse.x = sbus_rx_buffer[6] | (sbus_rx_buffer[7] << 8); //!< Mouse X axis
 				RC_Ctl.mouse.y = sbus_rx_buffer[8] | (sbus_rx_buffer[9] << 8); //!< Mouse Y axis
-				RC_Ctl.mouse.z = sbus_rx_buffer[10] | (sbus_rx_buffer[11] << 8); //!< Mouse Z axis
-	
-				
+				RC_Ctl.mouse.z = sbus_rx_buffer[10] | (sbus_rx_buffer[11] << 8); //!< Mouse Z axis		
 				RC_Ctl.mouse.press_l = sbus_rx_buffer[12]; //!< Mouse Left Is Press ?
 				
 				if((sbus_rx_buffer[13]==1&&RC_Ctl.mouse.press_r==0)||((((sbus_rx_buffer[5] >> 4)& 0x000C) >> 2)==1&&RC_Ctl.rc.s2==3))
@@ -167,8 +162,10 @@ void RC_Receive(void){
 					RC_Ctl.mouse.isUpedge_r=0;
 					RC_Ctl.mouse.isDownedge_r=0;
 				}
-				if(RC_Ctl.mouse.isDownedge_r==1&&RC_Ctl.mouse.isUpedge_r==1)RC_Ctl.mouse.isClicked_r=1;
-				else RC_Ctl.mouse.isClicked_r=0;
+				if(RC_Ctl.mouse.isDownedge_r==1&&RC_Ctl.mouse.isUpedge_r==1)
+					RC_Ctl.mouse.isClicked_r=1;
+				else 
+					RC_Ctl.mouse.isClicked_r=0;
 				RC_Ctl.mouse.press_r = sbus_rx_buffer[13]; //!< Mouse Right Is Press ?
 				RC_Ctl.rc.s2 = ((sbus_rx_buffer[5] >> 4)& 0x000C) >> 2; //!< Switch Left
 				RC_Ctl.rc.s1 = ((sbus_rx_buffer[5] >> 4)& 0x0003); //!< Switch Right
@@ -201,10 +198,19 @@ void RC_Receive(void){
 				}
 #endif
 				RC_Ctl.key.ctrl = (RC_Ctl.key.v & 0x0020)==0?0:1;
+				
+				if(isButtonPressed(RC_Ctl.key.leftTurn,(RC_Ctl.key.v & RC_Ctl.setKey.leftturn))==1)
+				{
+					RC_Ctl.velocity.vel=1300;
+				}
 				RC_Ctl.key.leftTurn = (RC_Ctl.key.v & RC_Ctl.setKey.leftturn)==0?0:1;
+				
+				if(isButtonPressed(RC_Ctl.key.rightTurn,(RC_Ctl.key.v & RC_Ctl.setKey.rightturn))==1)
+				{
+					RC_Ctl.velocity.vel=650;
+				}
 				RC_Ctl.key.rightTurn = (RC_Ctl.key.v & RC_Ctl.setKey.rightturn)==0?0:1;
-				RC_Ctl.key.shift = (RC_Ctl.key.v & 0x0010)==0?0:1;
-				//RC_Ctl.velocity.vel=RC_Ctl.key.shift==1?400:1550;	
+					
 			
 }
 
@@ -225,13 +231,13 @@ if(me.isStart==1)
 	
 if(RC_Ctl.mouse.isUpedge_r==1&&RC_Ctl.velocity.isBMSet==0&&RC_Ctl.velocity.isStepperMoving==0)
 		{
-			if(RC_Ctl.velocity.BMPWM<0.1*BM_PWM_MAX-152)
+			if(RC_Ctl.velocity.BMPWM<0.1*BM_PWM_MAX-150)
 			{
-				RC_Ctl.velocity.BMPWM=BM_PWM_MAX*0.1-152;
+				RC_Ctl.velocity.BMPWM=BM_PWM_MAX*0.1-150;
 				GPIO_ResetBits(GPIOB,GPIO_Pin_6);
 				RC_Ctl.velocity.isBMSet=1;
 			}
-			else if(shootStopCount>350)
+			else if(shootStopCount>150)
 			{
 				RC_Ctl.velocity.BMPWM=BM_PWM_MAX*0.05;
 				GPIO_SetBits(GPIOB,GPIO_Pin_6);
@@ -258,16 +264,17 @@ if(RC_Ctl.mouse.isUpedge_r==1&&RC_Ctl.velocity.isBMSet==0&&RC_Ctl.velocity.isSte
 	if(RC_Ctl.rc.s1==3)
 	{
 			me.isStart=1;
-	if((RC_Ctl.rc.ch0-1024)*(RC_Ctl.rc.ch0-1024)+(RC_Ctl.rc.ch1-1024)*(RC_Ctl.rc.ch1-1024)>680*680)
-	{
-		setXSpeed=((double)(RC_Ctl.rc.ch0-1024)/sqrtf((RC_Ctl.rc.ch0-1024)*(RC_Ctl.rc.ch0-1024)+(RC_Ctl.rc.ch1-1024)*(RC_Ctl.rc.ch1-1024))*1200);
-		setYSpeed=((double)(RC_Ctl.rc.ch1-1024)/sqrtf((RC_Ctl.rc.ch0-1024)*(RC_Ctl.rc.ch0-1024)+(RC_Ctl.rc.ch1-1024)*(RC_Ctl.rc.ch1-1024))*1200);
-	}else
-	{
-		setXSpeed=((double)(RC_Ctl.rc.ch0-1024)/660*1200);
-		setYSpeed=((double)(RC_Ctl.rc.ch1-1024)/660*1200);
-	}
-		RC_Ctl.velocity.w=(double)(RC_Ctl.rc.ch2-1024)/660*0.4;
+		if((RC_Ctl.rc.ch0-1024)*(RC_Ctl.rc.ch0-1024)+(RC_Ctl.rc.ch1-1024)*(RC_Ctl.rc.ch1-1024)>680*680)
+		{
+			setXSpeed=((double)(RC_Ctl.rc.ch0-1024)/sqrtf((RC_Ctl.rc.ch0-1024)*(RC_Ctl.rc.ch0-1024)+(RC_Ctl.rc.ch1-1024)*(RC_Ctl.rc.ch1-1024))*1200);
+			setYSpeed=((double)(RC_Ctl.rc.ch1-1024)/sqrtf((RC_Ctl.rc.ch0-1024)*(RC_Ctl.rc.ch0-1024)+(RC_Ctl.rc.ch1-1024)*(RC_Ctl.rc.ch1-1024))*1200);
+		}
+		else
+		{
+			setXSpeed=((double)(RC_Ctl.rc.ch0-1024)/660*1200);
+			setYSpeed=((double)(RC_Ctl.rc.ch1-1024)/660*1200);
+		}
+			RC_Ctl.velocity.w=(double)(RC_Ctl.rc.ch2-1024)/660*0.5;
 	
 	}
 /**=====================================Key Board Part=============================**/
@@ -316,21 +323,21 @@ if(RC_Ctl.mouse.isUpedge_r==1&&RC_Ctl.velocity.isBMSet==0&&RC_Ctl.velocity.isSte
 				setXSpeed=tempXSpeed;
 			
 			/**==========================Rotation Control=================================**/
-				if(RC_Ctl.key.leftTurn==1&&RC_Ctl.key.rightTurn==0)
-				{
-					tempWSpeed=-0.05;
-				}
-				else if(RC_Ctl.key.rightTurn==1&&RC_Ctl.key.leftTurn==0)
-				{
-					tempWSpeed=0.05;
-				}else
+//				if(RC_Ctl.key.leftTurn==1&&RC_Ctl.key.rightTurn==0)
+//				{
+//					tempWSpeed=-0.05;
+//				}
+//				else if(RC_Ctl.key.rightTurn==1&&RC_Ctl.key.leftTurn==0)
+//				{
+//					tempWSpeed=0.05;
+//				}else
 				{	
 					tempWSpeed=0;
 					if(RC_Ctl.mouse.x!=0)
 						{
-							if(RC_Ctl.mouse.x>99)tempWSpeed=0.15;
-							else if(RC_Ctl.mouse.x<-99)tempWSpeed=-0.15;
-							else tempWSpeed=((double)(RC_Ctl.mouse.x))/70;
+							if(RC_Ctl.mouse.x>99)tempWSpeed=0.5;
+							else if(RC_Ctl.mouse.x<-99)tempWSpeed=-0.5;
+							else tempWSpeed=((double)(RC_Ctl.mouse.x))/200;
 						}
 				}
 			RC_Ctl.velocity.w=tempWSpeed;
@@ -393,11 +400,11 @@ double getYunTaiDeltaPositionYaw(void){
 double getYunTaiDeltaPositionPitch(void){
 	
 	if(RC_Ctl.rc.s1==1){
-		if(RC_Ctl.mouse.y>80)return 0.5;
-		else if(RC_Ctl.mouse.y<-80)return -0.5;
-		else return (double)(RC_Ctl.mouse.y)/160;
+		if(RC_Ctl.mouse.y>80)return 0.08;
+		else if(RC_Ctl.mouse.y<-80)return -0.08;
+		else return (double)(RC_Ctl.mouse.y)/1000.0;
 	}else if(RC_Ctl.rc.s1==3){
-		return (-(double)(RC_Ctl.rc.ch3-1024)/3)/150;
+		return (-(double)(RC_Ctl.rc.ch3-1024)/3)/1000;
 	}else return 0;
 }
 uint16_t isYunTaiYawMoving(void){

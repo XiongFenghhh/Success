@@ -1,19 +1,18 @@
 #include "app.h"
 #define _load
-#define GAP 200.0
+const double GAP=0.0;
 /**
 *@author Xiong Feng
 *set Pitch and Yaw parameters of yuntai for debugging purpose
 */
- static double lp_p =20;
+ static double lp_p =26;
  static double lp_i = 0.0;
- static double lp_d = 40;
- //static double ly_p = 24;
-  static double ly_p = 400;
+ static double lp_d = 80;
+ static double ly_p = 500;
  static double ly_i = 0;
  static double ly_d =627;
- static double lf_p=0.003;
- static double lf_d=0.000;
+ static double lf_p=0.0025;
+ static double lf_d=0.2;
  static double lf_i=0;
 void setPitchPositionParameters(double kp,double ki,double kd){
 lp_p=kp;
@@ -229,30 +228,24 @@ double Velocity_Control_203(double current_velocity_203,double target_velocity_2
 @modified by huangmin on 2015.06.28 
 @added gyroscope measurement to the loop
 *********************************************************************************/
-double Position_Control_203(double current_position_203,double target_position_203,uint16_t isMoving)
+double Position_Control_203(double current_position_203,double target_position_203)
 {
     static double error_l[3] = {0.0,0.0,0.0};
     static double output = 0;
 		if(RC_Ctl.velocity.BMPWM>200)
 		{
-			ly_p=1500;
-			ly_d=800;
+			ly_p=2000;
+			ly_d=4000;
 		}
 		else
 		{
 			ly_p=500;
 			ly_d=627;
 		}
-		if(isMoving==1){
-//			
-//			l_p=30;
-		}
+	
 		error_l[0] = error_l[1];
       error_l[1] = error_l[2]; 
 		  error_l[2] = target_position_203 - current_position_203;  
-//    output = error_l[2] * ly_p 
-//							+ (error_l[0]*0.2+error_l[2]*0.4+error_l[1]*0.3)  * ly_i 
-//			+ (error_l[2] - error_l[1]) * ly_d;//@TODO: i controll has no effect on output
     
     output = error_l[2] * ly_p 
 						 + (error_l[0]*0.2+error_l[2]*0.4+error_l[1]*0.3)  * ly_i 
@@ -312,11 +305,11 @@ double followControl(int current_position_203)
     
 //		if(abs(current_position_203-target_position_203)>100)l_p=14.5;
 //		else if(abs(current_position_203-target_position_203)<70) l_p=12;
-		if(abs(current_position_203 - 4200) < GAP)
-			current_position_203 = 4200;
+		if(abs(current_position_203 - 4100) < GAP)
+			current_position_203 = 4100;
 	  else 
 		{
-			if((current_position_203 - 4200)>0)
+			if((current_position_203 - 4100)>0)
 				current_position_203 -= GAP;
 			else
 				current_position_203 += GAP;
@@ -324,7 +317,7 @@ double followControl(int current_position_203)
 		
 		error_l[0] = error_l[1];
     error_l[1] = error_l[2]; 
-	  error_l[2] = 4200 - current_position_203;
+	  error_l[2] = 4100 - current_position_203;
 	 
 	  output = error_l[2] * lf_p 
 							+ (error_l[0]*0.2+error_l[2]*0.4+error_l[1]*0.3)  * lf_i 
